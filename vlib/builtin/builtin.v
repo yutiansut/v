@@ -57,6 +57,27 @@ pub fn print(s string) {
 	C.printf('%.*s', s.len, s.str)
 }
 
+__global g_m_buf byteptr
+__global g_m_pos byteptr = 0
+
+pub fn init_mymalloc() {
+       println('INITING MY MALLOC')
+
+g_m_buf  = C.malloc(30000000)
+g_m_pos = g_m_buf
+C.printf('MALLOC buf = %p\n', g_m_buf)
+
+}
+
+fn malloc2(n int) byteptr {
+	   ptr := g_m_pos
+   g_m_pos += n
+   //println(g_m_pos - g_m_buf)
+   return ptr
+}
+
+
+
 __global total_m i64 = 0
 pub fn malloc(n int) byteptr {
 	if n < 0 {

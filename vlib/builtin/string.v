@@ -59,7 +59,7 @@ fn tos2(s byteptr) string {
 pub fn (a string) clone() string {
 	mut b := string {
 		len: a.len
-		str: malloc(a.len + 1)
+		str: malloc2(a.len + 1)
 	}
 	for i := 0; i < a.len; i++ {
 		b[i] = a[i]
@@ -106,7 +106,7 @@ pub fn (s string) replace(rep, with string) string {
 	}
 	// Now we know the number of replacements we need to do and we can calc the len of the new string
 	new_len := s.len + idxs.len * (with.len - rep.len)
-	mut b := malloc(new_len + 1)// add a newline just in case
+	mut b := malloc2(new_len + 1)// add a newline just in case
 	// Fill the new string
 	mut idx_pos := 0
 	mut cur_idx := idxs[idx_pos]
@@ -201,7 +201,7 @@ pub fn (s string) add(a string) string {
 	new_len := a.len + s.len
 	mut res := string {
 		len: new_len
-		str: malloc(new_len + 1)
+		str: malloc2(new_len + 1)
 	}
 	for j := 0; j < s.len; j++ {
 		res[j] = s[j]
@@ -372,11 +372,11 @@ pub fn (s string) index(p string) int {
 			j++
 		}
 		if j == p.len {
-			prefix.free()
+			//prefix.free()
 			return i - p.len + 1
 		}
 	}
-	prefix.free()
+	//prefix.free()
 	return -1
 }
 
@@ -751,7 +751,7 @@ pub fn (a[]string) join(del string) string {
 	// Allocate enough memory
 	mut res := ''
 	res.len = len
-	res.str = malloc(res.len + 1)
+	res.str = malloc2(res.len + 1)
 	mut idx := 0
 	// Go thru every string and copy its every char one by one
 	for i, val in a {
@@ -810,7 +810,7 @@ pub fn repeat_char(c byte, n int) string {
 	if n <= 0 {
 		return ''
 	}
-	mut arr := malloc(n + 1)
+	mut arr := malloc2(n + 1)
 	for i := 0; i < n; i++ {
 		arr[i] = c
 	}

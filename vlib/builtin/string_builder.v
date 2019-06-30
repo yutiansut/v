@@ -35,5 +35,5 @@ pub fn (b StringBuilder) cut(n int) {
 }
 
 pub fn (b mut StringBuilder) free() {
-	C.free(b.buf.data)
+	//C.free(b.buf.data)
 }

@@ -20,7 +20,7 @@ fn new_array(mylen, cap, elm_size int) array {
 		len: mylen
 		cap: cap
 		element_size: elm_size
-		data: malloc(cap * elm_size)
+		data: malloc2(cap * elm_size)
 	}
 	return arr
 }
@@ -31,7 +31,7 @@ fn new_array_from_c_array(len, cap, elm_size int, c_array voidptr) array {
 		len: len
 		cap: cap
 		element_size: elm_size
-		data: malloc(cap * elm_size)
+		data: malloc2(cap * elm_size)
 	}
 	// TODO Write all memory functions (like memcpy) in V
 	C.memcpy(arr.data, c_array, len * elm_size)
@@ -55,7 +55,7 @@ fn array_repeat(val voidptr, nr_repeats, elm_size int) array {
 		len: nr_repeats
 		cap: nr_repeats
 		element_size: elm_size
-		data: malloc(nr_repeats * elm_size)
+		data: malloc2(nr_repeats * elm_size)
 	}
 	for i := 0; i < nr_repeats; i++ {
 		C.memcpy(arr.data + i * elm_size, val, elm_size)
@@ -161,10 +161,14 @@ fn (arr mut array) _push(val voidptr) {
 		cap := (arr.len + 1) * 2
 		// println('_push: realloc, new cap=$cap')
 		if arr.cap == 0 {
-			arr.data = malloc(cap * arr.element_size)
+			arr.data = malloc2(cap * arr.element_size)
 		}
 		else {
-			arr.data = C.realloc(arr.data, cap * arr.element_size)
+			//arr.data = C.realloc(arr.data, cap * arr.element_size)
+			p := malloc2(cap * arr.element_size)
+        C.memcpy(p, arr.data, arr.cap * arr.element_size)
+        arr.data = p
+
 		}
 		arr.cap = cap
 	}
@@ -177,10 +181,14 @@ pub fn (arr mut array) _push_many(val voidptr, size int) {
 		cap := (arr.len + size) * 2
 		// println('_push: realloc, new cap=$cap')
 		if arr.cap == 0 {
-			arr.data = malloc(cap * arr.element_size)
+			arr.data = malloc2(cap * arr.element_size)
 		}
 		else {
-			arr.data = C.realloc(arr.data, cap * arr.element_size)
+			//arr.data = C.realloc(arr.data, cap * arr.element_size)
+
+			p := malloc2(cap * arr.element_size)
+        C.memcpy(p, arr.data, arr.cap * arr.element_size)
+        arr.data = p
 		}
 		arr.cap = cap
 	}
@@ -203,7 +211,7 @@ pub fn (a[]int) str() string {
 
 pub fn (a[]int) free() {
 	// println('array free')
-	C.free(a.data)
+	//C.free(a.data)
 }
 
 // TODO generic
@@ -222,6 +230,6 @@ pub fn (a[]string) str() string {
 }
 
 fn free(a voidptr) {
-	C.free(a)
+	//C.free(a)
 }
 

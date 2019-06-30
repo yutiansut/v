@@ -301,7 +301,7 @@ void init_consts();')
 	// if c.build_mode in [.default, .embed_vlib] {
 	if c.build_mode == DEFAULT_MODE || c.build_mode == EMBED_VLIB {
 		// vlib can't have `init_consts()`
-		cgen.genln('void init_consts() { g_str_buf=malloc(1000); ${cgen.consts_init.join_lines()} }')
+		cgen.genln('void init_consts() { init_mymalloc(); g_str_buf=malloc(1000); ${cgen.consts_init.join_lines()} }')
 		// _STR function can't be defined in vlib
 		cgen.genln('
 string _STR(const char *fmt, ...) {

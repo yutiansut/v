@@ -1041,15 +1041,10 @@ fn (p mut Parser) assign_statement(v Var, ph int, is_map bool) {
 		if is_str {
 			p.gen('= string_add($v.name, ')// TODO can't do `foo.bar += '!'`
 		}
-		else if !is_map {
+		else {
 			p.gen(' += ')
 		}
-	default:
-		if 	tok != MINUS_ASSIGN 					&& tok != MULT_ASSIGN					&& tok != XOR_ASSIGN
-		 && tok != MOD_ASSIGN							&& tok != AND_ASSIGN 					&& tok != OR_ASSIGN
-		 && tok != RIGHT_SHIFT_ASSIGN 		&& tok != LEFT_SHIFT_ASSIGN 	&& tok != DIV_ASSIGN {
-			p.gen(' ' + p.tok.str() + ' ')
-		}
+	default: p.gen(' ' + p.tok.str() + ' ')
 	}
 	p.fgen(' ' + p.tok.str() + ' ')
 	p.next()
