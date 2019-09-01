@@ -660,10 +660,10 @@ fn (p mut Parser) fn_call(f Fn, method_ph int, receiver_var, receiver_type strin
 		mut cast := ''
 		// Method returns (void*) => cast it to int, string, user etc
 		// number := *(int*)numbers.first()
-		if f.typ == 'void*' {
+		if f.typ == 'void*' && p.expected_type != 'void*' {
 			// array_int => int
 			cast = receiver_type.all_after('_')
-			cast = '*($cast*) '
+			cast = '*($cast*) /*vptrcast*/ '
 		}
 		p.cgen.set_placeholder(method_ph, '$cast $method_call')
 	}

@@ -2040,12 +2040,13 @@ fn (p mut Parser) index_expr(typ_ string, fn_ph int) string {
 			p.cgen.resetln(p.cgen.cur_line.left(fn_ph))
 		}
 		// Can't pass integer literal, because map_get() requires a void*
-		tmp := p.get_tmp()
-		tmp_ok := p.get_tmp()
+		//tmp := p.get_tmp()
+		//tmp_ok := p.get_tmp()
 		if is_map {
-			p.gen('$tmp')
-			def := type_default(typ)
-			p.cgen.insert_before('$typ $tmp = $def; bool $tmp_ok = map_get($index_expr, & $tmp);')
+			p.gen('( *($typ*) map_get2($index_expr) )')
+			//p.gen('$tmp')
+			//def := type_default(typ)
+			//p.cgen.insert_before('$typ $tmp = $def; bool $tmp_ok = map_get($index_expr, & $tmp);')
 		}
 		else if is_arr {
 			if p.pref.translated && !p.builtin_mod {
@@ -2066,8 +2067,7 @@ fn (p mut Parser) index_expr(typ_ string, fn_ph int) string {
 		// This is ugly, but what can I do without generics?
 		// TODO what about user types?
 		if is_map && typ == 'string' {
-			// p.cgen.insert_before('if (!${tmp}.str) $tmp = tos("", 0);')
-			p.cgen.insert_before('if (!$tmp_ok) $tmp = tos((byte *)"", 0);')
+			//p.cgen.insert_before('if (!$tmp_ok) $tmp = tos((byte *)"", 0);')
 		}
 	}
 	// else if is_arr && is_indexer{}
@@ -2982,7 +2982,7 @@ fn (p mut Parser) cast(typ string) string {
 		p.error('cannot cast `$expr_typ` to `$typ`, use backquotes `` to create a `$typ` or access the value of an index of `$expr_typ` using []')
 	}
 	else if casting_voidptr_to_value {
-		p.cgen.set_placeholder(pos, '*($typ*)(')
+		p.cgen.set_placeholder(pos, '*($typ* /*vcast*/)(')
 	}
 	else {
 		p.cgen.set_placeholder(pos, '($typ)(')
@@ -3546,6 +3546,7 @@ else {
 
 fn (p mut Parser) return_st() {
 	p.check(.key_return)
+	p.expected_type = p.cur_fn.typ
 	p.fgen(' ')
 	fn_returns := p.cur_fn.typ != 'void'
 	if fn_returns {

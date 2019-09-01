@@ -44,7 +44,7 @@ fn new_map_init(cap, elm_size int, keys &string, vals voidptr) map {
 fn new_node(key string, val voidptr, element_size int) &mapnode {
 	new_e := &mapnode {
 		key: key
-		val: malloc(element_size)
+		val: malloc(element_size) // TODO don't allocate for each node
 		left: 0
 		right: 0
 	}
@@ -74,7 +74,7 @@ fn (m mut map) insert(n mut mapnode, key string, val voidptr) {
 	}
 }
 
-fn (n & mapnode) find(key string, out voidptr, element_size int) bool{
+fn (n &mapnode) find(key string, out voidptr, element_size int) bool{
 	if n.key == key {
 		C.memcpy(out, n.val, element_size)
 		return true
@@ -96,7 +96,7 @@ fn (n & mapnode) find(key string, out voidptr, element_size int) bool{
 }
 
 // same as `find`, but doesn't return a value. Used by `exists`
-fn (n & mapnode) find2(key string, element_size int) bool{
+fn (n &mapnode) find2(key string, element_size int) bool{
 	if n.key == key {
 		return true
 	}
@@ -112,6 +112,28 @@ fn (n & mapnode) find2(key string, element_size int) bool{
 			return false
 		}  else {
 			return n.right.find2(key, element_size)
+		}
+	}
+}
+
+fn (n &mapnode) find_ret_voidptr(key string, element_size int) voidptr {
+	if n.key == key {
+		//println('find ret got "$key"')
+		//println(int(n.val))
+		return n.val
+	}
+	else if n.key > key {
+		if isnil(n.left) {
+			return 0
+		}  else {
+			return n.left.find_ret_voidptr(key, element_size)
+		}
+	}
+	else {
+		if isnil(n.right) {
+			return 0
+		}  else {
+			return n.right.find_ret_voidptr(key, element_size)
 		}
 	}
 }
@@ -182,6 +204,15 @@ fn (m map) get(key string, out voidptr) bool {
 		return false
 	}
 	return m.root.find(key, out, m.element_size)
+}
+
+fn (m map) get2(key string) voidptr {
+	if isnil(m.root) {
+		return false
+	}
+	//res := voidptr(m.root.find_ret_voidptr(key, m.element_size))
+	//return res
+	return m.root.find_ret_voidptr(key, m.element_size)
 }
 
 pub fn (n mut mapnode) delete(key string, element_size int) {
