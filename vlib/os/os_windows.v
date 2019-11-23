@@ -259,8 +259,8 @@ pub fn exec(cmd string) ?Result {
 	start_info.dwFlags = u32(C.STARTF_USESTDHANDLES)
 	command_line := [32768]u16
 	C.ExpandEnvironmentStringsW(cmd.to_wide(), voidptr(&command_line), 32768)
-	create_process_result := int(C.CreateProcessW(0, command_line, 0, 0, C.TRUE, 0, 0, 0, voidptr(&start_info), voidptr(&proc_info)))
-	if create_process_result == 0 {
+	create_process_ok := C.CreateProcessW(0, command_line, 0, 0, C.TRUE, 0, 0, 0, voidptr(&start_info), voidptr(&proc_info))
+	if !create_process_ok {
 		error_msg := get_error_msg(int(C.GetLastError()))
 		return error('exec failed (CreateProcess): $error_msg')
 	}
@@ -272,7 +272,7 @@ pub fn exec(cmd string) ?Result {
 	for {
 		readfile_result := C.ReadFile(child_stdout_read, buf, 1000, voidptr(&bytes_read), 0)
 		read_data += tos(buf, int(bytes_read))
-		if (readfile_result == false || int(bytes_read) == 0) {
+		if readfile_result == false || int(bytes_read) == 0 {
 			break
 		}		
 	}
