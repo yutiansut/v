@@ -130,12 +130,13 @@ pub fn dir_exists(path string) bool {
 	return false
 }
 
+fn C.CreateDirectory(byteptr, int) bool
+
 // mkdir creates a new directory with the specified path.
 pub fn mkdir(path string) ?bool {
 	if path == '.' { return true }
 	apath := os.realpath( path )
-	r := int(C.CreateDirectory(apath.to_wide(), 0))
-	if r == 0 {
+	if !C.CreateDirectory(apath.to_wide(), 0) {
 		return error('mkdir failed for "$apath", because CreateDirectory returned ' + get_error_msg(int(C.GetLastError())))
 	}
 	return true
@@ -239,12 +240,12 @@ pub fn exec(cmd string) ?Result {
 
 	create_pipe_ok := C.CreatePipe(voidptr(&child_stdout_read),
 		voidptr(&child_stdout_write), voidptr(&sa), 0)
-	if create_pipe_ok {
+	if !create_pipe_ok {
 		error_msg := get_error_msg(int(C.GetLastError()))
 		return error('exec failed (CreatePipe): $error_msg')
 	}
-	set_handle_info_result := int(C.SetHandleInformation(child_stdout_read, C.HANDLE_FLAG_INHERIT, 0))
-	if set_handle_info_result == 0 {
+	set_handle_info_ok := C.SetHandleInformation(child_stdout_read, C.HANDLE_FLAG_INHERIT, 0)
+	if !set_handle_info_ok {
 		error_msg := get_error_msg(int(C.GetLastError()))
 		panic('exec failed (SetHandleInformation): $error_msg')
 	}
