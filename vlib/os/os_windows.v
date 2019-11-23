@@ -238,7 +238,7 @@ pub fn exec(cmd string) ?Result {
 	sa.bInheritHandle = true
 
 	create_pipe_ok := C.CreatePipe(voidptr(&child_stdout_read),
-		voidptr(&child_stdout_write), voidptr(&sa), 0))
+		voidptr(&child_stdout_write), voidptr(&sa), 0)
 	if create_pipe_ok {
 		error_msg := get_error_msg(int(C.GetLastError()))
 		return error('exec failed (CreatePipe): $error_msg')
