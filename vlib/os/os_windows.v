@@ -138,7 +138,7 @@ pub fn mkdir(path string) ?bool {
 	if r == 0 {
 		return error('mkdir failed for "$apath", because CreateDirectory returned ' + get_error_msg(int(C.GetLastError())))
 	}
-	return true 
+	return true
 }
 
 // Ref - https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/get-osfhandle?view=vs-2019
@@ -237,8 +237,9 @@ pub fn exec(cmd string) ?Result {
 	sa.nLength = sizeof(C.SECURITY_ATTRIBUTES)
 	sa.bInheritHandle = true
 
-	create_pipe_result := int(C.CreatePipe(voidptr(&child_stdout_read), voidptr(&child_stdout_write), voidptr(&sa), 0))
-	if create_pipe_result == 0 {
+	create_pipe_ok := C.CreatePipe(voidptr(&child_stdout_read),
+		voidptr(&child_stdout_write), voidptr(&sa), 0))
+	if create_pipe_ok {
 		error_msg := get_error_msg(int(C.GetLastError()))
 		return error('exec failed (CreatePipe): $error_msg')
 	}
@@ -271,7 +272,7 @@ pub fn exec(cmd string) ?Result {
 		readfile_result := C.ReadFile(child_stdout_read, buf, 1000, voidptr(&bytes_read), 0)
 		read_data += tos(buf, int(bytes_read))
 		if (readfile_result == false || int(bytes_read) == 0) {
-			break 
+			break
 		}		
 	}
 	read_data = read_data.trim_space()
